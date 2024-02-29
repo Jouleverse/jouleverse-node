@@ -53,6 +53,7 @@ MaxPrice = 500000000000
 IgnorePrice = 2
 
 [Node]
+VersionTag = "t20240229"
 DataDir = "/data/testnet"
 InsecureUnlockAllowed = true
 IPCPath = "geth.ipc"

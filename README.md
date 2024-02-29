@@ -4,6 +4,10 @@ Binary and config files for running jouleverse nodes. env: ubuntu:20.04 (docker)
 
 ## revision history
 
+2024.2.29
+- use geth 1.11.4-jouleverse with tag support
+- fix enode for bootnode-koant and bootnode-wenqinghuo in witness config
+
 2024.1.15
 - fill all 11 ledger nodes to miner config
 - fill all 7 bootnode-witness nodes to witness config
