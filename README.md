@@ -4,6 +4,12 @@ Binary and config files for running jouleverse nodes. env: ubuntu:20.04 (docker)
 
 ## revision history
 
+2026.1.25
+- clean up bootnodes
+- integrate clef for miner
+- use docker compose
+- scripts for easier jnode mgmt
+
 2024.2.29
 - use geth 1.11.4-jouleverse with tag support
 - fix enode for bootnode-koant and bootnode-wenqinghuo in witness config
@@ -18,3 +24,7 @@ Binary and config files for running jouleverse nodes. env: ubuntu:20.04 (docker)
 
 2023.10.7
 - for docker use
+
+## contributors
+
+- Evan Liu 🆔J25 (evan.j)

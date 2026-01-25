@@ -1,0 +1,184 @@
+#!/bin/bash
+
+# JNode Miner Management Script
+SCRIPT_PATH="$(readlink -f "$0")"
+WORKING_DIR="$(cd "$(dirname "$SCRIPT_PATH")/.." && pwd)"
+DATA_DIR="$HOME/data"
+
+# 颜色定义
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# 日志函数
+log_info() {
+	echo -e "${GREEN}[INFO]${NC} $(date '+%Y-%m-%d %H:%M:%S') - $1"
+}
+
+log_warn() {
+	echo -e "${YELLOW}[WARN]${NC} $(date '+%Y-%m-%d %H:%M:%S') - $1"
+}
+
+log_error() {
+	echo -e "${RED}[ERROR]${NC} $(date '+%Y-%m-%d %H:%M:%S') - $1"
+}
+
+# 显示用法
+show_usage() {
+	echo "JNode Witness Management Script"
+	echo "用法: $0 {init|start|stop|watch|backup|console|status|help}"
+	echo ""
+	echo "命令说明:"
+	echo "  init     初始化JNode环境"
+	echo "  start    启动JNode节点"
+	echo "  stop     停止JNode节点"
+	echo "  watch    监控节点状态"
+	echo "  backup   备份节点关键数据"
+	echo "  console  进入节点控制台"
+	echo "  status   查看节点状态"
+	echo "  cleanup  清理节点废旧容器"
+	echo "  help     显示此帮助信息"
+	echo ""
+	echo "示例:"
+	echo "  $0 init     # 初始化节点"
+	echo "  $0 start    # 启动节点"
+	echo "  $0 watch    # 监控节点"
+}
+
+# 初始化节点
+init_node() {
+	log_info "开始初始化JNode节点..."
+
+	## init_jnode.sh
+
+    	# 检查数据目录是否存在
+    	if [ -e "$DATA_DIR/mainnet" ]; then
+		echo "警告: 数据目录 ~/data/mainnet 已存在！"
+		echo "重新初始化将会破坏现有数据。"
+
+		read -p "是否继续强制重新初始化数据目录？(y/N): " confirm
+
+		if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
+			log_info "用户取消初始化操作。"
+			return 1
+		fi
+    	fi
+
+	sudo docker run --rm -t --name jouleverse-init -v ${WORKING_DIR}:/j -v ${DATA_DIR}:/data ubuntu:20.04 /j/bin/geth init --datadir /data/mainnet /j/init/genesis-mainnet.json
+}
+
+# 启动节点
+start_node() {
+	log_info "启动JNode节点..."
+
+	## start_jnode.sh
+	cd $WORKING_DIR
+	sudo -E docker-compose -f docker-compose-witness.yml up -d
+
+	echo "节点启动完成"
+}
+
+# 停止节点
+stop_node() {
+	log_info "停止JNode节点..."
+
+	## stop_jnode.sh
+	sudo docker exec jouleverse-geth pkill -SIGTERM geth
+}
+
+# 监控节点
+watch_node() {
+	log_info "开始监控JNode节点..."
+
+	## jnode_wath.sh
+	cd $WORKING_DIR
+	docker-compose -f docker-compose-witness.yml logs --tail 10 -f
+}
+
+# 备份节点
+backup_node() {
+	log_info "开始备份JNode节点关键数据..."
+
+	## jnode_backup.sh
+	BACKUPDIR=$HOME/jnode-backup-`date +'%Y%m%d-%s'`
+
+	mkdir -p $BACKUPDIR
+
+	echo 备份nodekey...
+	sudo cp ${DATA_DIR}/mainnet/geth/nodekey $BACKUPDIR/
+
+	echo 完成！
+}
+
+# 节点控制台
+node_console() {
+	log_info "进入JNode节点控制台..."
+
+	## jnode_console.sh
+	sudo docker exec -it jouleverse-geth /j/bin/geth attach /data/mainnet/geth.ipc
+}
+
+# 显示节点状态
+show_status() {
+	log_info "查看JNode节点状态..."
+
+	sudo docker ps
+}
+
+# 清理节点废旧容器
+cleanup_node() {
+	log_info "清理JNode节点废旧容器..."
+
+	sudo docker container prune
+}
+
+# 主函数
+main() {
+	# 检查参数
+	if [[ $# -eq 0 ]]; then
+		show_usage
+		exit 1
+	fi
+
+	COMMAND="$1"
+
+	case "$COMMAND" in
+		init)
+			init_node
+			;;
+		start)
+			start_node
+			;;
+		stop)
+			stop_node
+			;;
+		watch)
+			watch_node
+			;;
+		backup)
+			backup_node
+			;;
+		console)
+			node_console
+			;;
+		status)
+			show_status
+			;;
+		cleanup)
+			cleanup_node
+			;;
+		help|--help|-h)
+			show_usage
+			;;
+		*)
+			log_error "未知命令: $COMMAND"
+			show_usage
+			exit 1
+			;;
+	esac
+}
+
+# 运行主函数
+main "$@"

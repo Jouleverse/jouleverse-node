@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  clef:
+    image: ubuntu:22.04
+    container_name: jouleverse-clef
+    volumes:
+      - ~/jouleverse-node-20260125:/j:ro
+      - ~/data:/data
+      - ~/data/clef:/root/.clef
+    environment:
+      - CLEF_PASSWORD_FILE
+    command: >
+      /j/scripts/clef_entrypoint.sh
+    healthcheck:
+      test: ["CMD", "test", "-S", "/root/.clef/clef.ipc"]
+
+  geth:
+    image: ubuntu:22.04
+    container_name: jouleverse-geth
+    depends_on:
+      clef:
+        condition: service_healthy
+    volumes:
+      - ~/jouleverse-node-20260125:/j:ro
+      - ~/data:/data
+      - ~/data/clef:/root/.clef
+    ports:
+      - "30311:30311"
+      - "30311:30311/udp"
+    extra_hosts:
+      - "jeff.bootnode:43.136.53.164"
+      - "ygh.bootnode:1.14.111.74"
+      - "weichen.bootnode:81.70.93.66"
+      - "koant.bootnode:111.230.23.83"
+      - "loulanyufu.bootnode:43.138.211.245"
+      - "wenqinghuo.bootnode:120.26.11.88"
+      - "jacky.miner:47.94.93.119"
+      - "koant.miner:119.29.202.168"
+      - "menger.miner:62.234.21.37"
+      - "wenqinghuo.miner:82.157.251.101"
+      - "ygh.miner:106.53.60.230"
+      - "li17.miner:47.100.5.124"
+      - "jeff.miner:47.120.35.41"
+    command: >
+      /j/bin/geth --config /j/config/node-mainnet-miner.toml --snapshot=false --ignore-legacy-receipts --signer=/root/.clef/clef.ipc -mine

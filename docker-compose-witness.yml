@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  geth:
+    image: ubuntu:22.04
+    container_name: jouleverse-geth
+    volumes:
+      - ~/jouleverse-node-20260125:/j:ro
+      - ~/data:/data
+      - ~/data/clef:/root/.clef
+    ports:
+      - "8501:8501"
+      - "30311:30311"
+      - "30311:30311/udp"
+    extra_hosts:
+      - "jeff.bootnode:43.136.53.164"
+      - "ygh.bootnode:1.14.111.74"
+      - "weichen.bootnode:81.70.93.66"
+      - "koant.bootnode:111.230.23.83"
+      - "loulanyufu.bootnode:43.138.211.245"
+      - "wenqinghuo.bootnode:120.26.11.88"
+    command: >
+      /j/bin/geth --config /j/config/node-mainnet-witness.toml --snapshot=false --ignore-legacy-receipts
