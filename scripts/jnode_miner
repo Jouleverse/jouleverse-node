@@ -81,7 +81,7 @@ start_node() {
 	## 先检查容器是否正在运行
 	CONTAINER_NAME="jouleverse-geth"
 
-	if docker ps --format "{{.Names}}" | grep -q "^${CONTAINER_NAME}$"; then
+	if sudo docker ps --format "{{.Names}}" | grep -q "^${CONTAINER_NAME}$"; then
 		echo "错误: jouleverse-geth 节点正在运行中!"
 		echo "请先手动停止节点，使用以下命令:"
 		echo "$0 stop"
@@ -167,7 +167,15 @@ node_console() {
 	log_info "进入JNode节点控制台..."
 
 	## jnode_console.sh
-	sudo docker exec -it jouleverse-geth /j/bin/geth attach /data/mainnet/geth.ipc
+	local command="$*"
+
+	if [ -z "$command" ]; then
+		# 如果没有参数，进入交互模式
+		sudo docker exec -it jouleverse-geth /j/bin/geth attach /data/mainnet/geth.ipc
+	else
+		# 如果有参数，执行命令
+		sudo docker exec -it jouleverse-geth /j/bin/geth --exec "$command" attach /data/mainnet/geth.ipc
+	fi
 }
 
 # 显示节点状态
@@ -194,6 +202,9 @@ main() {
 
 	COMMAND="$1"
 
+	# 移除第一个参数（命令本身）
+	shift
+
 	case "$COMMAND" in
 		init)
 			init_node
@@ -211,7 +222,8 @@ main() {
 			backup_node
 			;;
 		console)
-			node_console
+			# 将剩余参数传递给 node_console 函数
+			node_console "$@"
 			;;
 		status)
 			show_status

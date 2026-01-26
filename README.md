@@ -4,6 +4,10 @@ Binary and config files for running jouleverse nodes. env: ubuntu:20.04 (docker)
 
 ## revision history
 
+2026.1.26
+- fix docker-compose permission issue
+- fix version tag x20260126
+
 2026.1.25
 - clean up bootnodes
 - integrate clef for miner

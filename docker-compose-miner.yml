@@ -5,7 +5,7 @@ services:
     image: ubuntu:22.04
     container_name: jouleverse-clef
     volumes:
-      - ~/jouleverse-node-20260125:/j:ro
+      - ~/jouleverse-node-20260126:/j:ro
       - ~/data:/data
       - ~/data/clef:/root/.clef
     environment:
@@ -22,7 +22,7 @@ services:
       clef:
         condition: service_healthy
     volumes:
-      - ~/jouleverse-node-20260125:/j:ro
+      - ~/jouleverse-node-20260126:/j:ro
       - ~/data:/data
       - ~/data/clef:/root/.clef
     ports:
