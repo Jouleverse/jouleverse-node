@@ -4,6 +4,10 @@ Binary and config files for running jouleverse nodes. env: ubuntu:20.04 (docker)
 
 ## revision history
 
+2026.1.29
+- improve clef init process and config directory setup
+- improve miner init script to be flexibly init only clef and/or geth
+
 2026.1.28
 - downgrade docker image requirement from ubuntu 22.04 to 20.04
 - fix ~ to $HOME in docker-compose config for root run
@@ -36,6 +40,12 @@ Binary and config files for running jouleverse nodes. env: ubuntu:20.04 (docker)
 
 2023.10.7
 - for docker use
+
+## change tag
+
+never forget to update tag to the release date like this:
+
+sed -i 's/20260128/20260129/g' config/node-mainnet-miner.toml config/node-testnet.toml config/node-mainnet-witness.toml docker-compose-witness.yml docker-compose-miner.yml
 
 ## contributors
 

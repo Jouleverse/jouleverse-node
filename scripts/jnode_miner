@@ -55,21 +55,20 @@ init_node() {
 
 	# 检查数据目录是否存在
 	if [ -e "$DATA_DIR/mainnet" ]; then
-		echo "警告: 数据目录 $DATA_DIR/mainnet 已存在！"
-		echo "重新初始化将会破坏现有数据。"
+		echo "警告: 区块链数据目录 $DATA_DIR/mainnet 已存在！"
+		echo "重新初始化可能会破坏现有数据。"
 
-		read -p "是否继续强制重新初始化数据目录？(y/N): " confirm
+		read -p "是否继续重新初始化？(y/N): " confirm
 
 		if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
 			log_info "用户取消初始化操作。"
 			return 1
 		fi
-
-		backup_node && rm ${DATA_DIR}/clef/masterseed.json
 	fi
 
 	mkdir -p ${DATA_DIR}/clef
-	sudo docker run --rm -it --name jouleverse-init -v ${WORKING_DIR}:/j -v ${DATA_DIR}:/data -v ${DATA_DIR}/clef:/root/.clef ubuntu:20.04 /bin/bash -c 'exec /j/scripts/miner_init.sh'
+	echo "进入docker环境"
+	sudo docker run --rm -it --name jouleverse-init -v ${WORKING_DIR}:/j -v ${DATA_DIR}:/data ubuntu:20.04 /bin/bash -c 'exec /j/scripts/miner_init.sh'
 	echo "docker已退出"
 	echo "节点初始化完成"
 }

@@ -94,20 +94,20 @@ check_prerequisites() {
 
 # 步骤1: 初始化geth数据目录（包含数据目录检查）
 init_geth() {
-	info "步骤1: 初始化geth数据目录"
+	info "步骤2: 初始化geth数据目录"
 
 	local geth_data_dir="$DATA_DIR/mainnet"
 
 	# 检查数据目录是否存在
 	if [ -e "$geth_data_dir" ]; then
-		warn "警告: 数据目录 $geth_data_dir 已存在！"
+		warn "警告: Geth 数据目录 $geth_data_dir 已存在！"
 		warn "重新初始化将会破坏现有数据。"
 
-		echo -n "是否继续强制重新初始化数据目录？(y/N): "
+		echo -n "是否继续强制重新初始化Geth数据目录？(y/N): "
 		read -r confirm
 
 		if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
-			info "用户取消初始化操作。"
+			info "跳过Geth初始化"
 			return 1
 		fi
 
@@ -128,6 +128,7 @@ init_geth() {
 	# 创建数据目录
 	mkdir -p "$geth_data_dir"
 
+	info "步骤2.1: 初始化区块链"
 	warn "正在执行: $GETH_BIN init --datadir $geth_data_dir $GENESIS_FILE"
 
 	if $GETH_BIN init --datadir "$geth_data_dir" "$GENESIS_FILE"; then
@@ -136,11 +137,13 @@ init_geth() {
 		error "Geth初始化失败"
 		exit 1
 	fi
+
+	return 0
 }
 
 # 步骤2: 复制keystore文件
 copy_keystore() {
-	info "步骤2: 复制keystore文件"
+	info "步骤2.2: 复制keystore文件"
 
 	local keystore_dir="$DATA_DIR/mainnet/keystore"
 
@@ -171,8 +174,6 @@ copy_keystore() {
 				address="0x$address"
 			fi
 			info "账户地址: $address"
-			# 保存地址供后续使用
-			echo "$address" > /tmp/keystore_address.txt
 		else
 			warn "无法提取keystore地址，后续步骤需要手动输入"
 		fi
@@ -184,18 +185,18 @@ copy_keystore() {
 
 # 步骤3: 初始化clef签名机
 init_clef() {
-	info "步骤3: 初始化clef签名机"
+	info "步骤1: 初始化clef签名机"
 
 	# 检查clef是否已经初始化
-	local clef_dir="$DATA_DIR/.clef"
+	local clef_dir="$DATA_DIR/clef"
 	if [ -d "$clef_dir" ]; then
 		warn "警告: Clef目录 $clef_dir 已存在！"
-		echo -n "是否重新初始化Clef？(y/N): "
+		echo -n "是否重新初始化Clef签名机？(y/N): "
 		read -r confirm
 
 		if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
 			info "跳过Clef初始化"
-			return 0
+			return 1
 		fi
 
 		# 备份现有clef目录
@@ -209,27 +210,37 @@ init_clef() {
 		rm -rf "$clef_dir"
 	fi
 
+	info "步骤1.1: 初始化Clef加密存储区"
 	warn "正在执行: $CLEF_BIN init"
 	echo "请按照提示操作:"
-	echo "1. 输入 'ok' 确认初始化"
-	echo "2. 输入并确认clef加密密码（两次）"
+	echo "1. 输入并确认clef加密密码（两次）"
 
-	if ! $CLEF_BIN init; then
+	if ! $CLEF_BIN --configdir $DATA_DIR/clef --suppress-bootwarn init; then
 		error "Clef初始化失败"
 		exit 1
 	fi
+
+	return 0
 }
 
 # 步骤4: 设置账户密码
 set_account_password() {
-	info "步骤4: 设置账户密码"
+	info "步骤1.2: 设置账户密码"
 
 	local address=""
 
-	# 尝试从临时文件读取地址
-	if [ -f "/tmp/keystore_address.txt" ]; then
-		address=$(cat /tmp/keystore_address.txt)
-		info "使用自动提取的地址: $address"
+	# 尝试从keystore文件读取地址
+	if [ -f "$KEYSTORE_FILE" ]; then
+		address=$(extract_address_from_keystore "$KEYSTORE_FILE")
+		if [ $? -eq 0 ] && [ -n "$address" ]; then
+			# 确保地址是完整的（可能缺少0x前缀）
+			if [[ ! "$address" =~ ^0x ]]; then
+				address="0x$address"
+			fi
+			info "使用自动提取的地址: $address"
+		else
+			warn "无法提取keystore地址，后续步骤需要手动输入"
+		fi
 	fi
 
 	# 如果无法获取地址，提示用户输入
@@ -258,19 +269,20 @@ set_account_password() {
 
 	warn "正在执行: $CLEF_BIN setpw $address"
 	echo "请按照提示操作:"
-	echo "1. 输入 'ok' 确认"
-	echo "2. 输入keystore解锁密码（两次）"
-	echo "3. 输入clef加密密码"
+	echo "1. 输入keystore解锁密码（两次）"
+	echo "2. 输入clef加密密码"
 
-	if ! $CLEF_BIN setpw "$address"; then
+	if ! $CLEF_BIN --configdir $DATA_DIR/clef --suppress-bootwarn setpw "$address"; then
 		error "设置账户密码失败"
 		exit 1
 	fi
+
+	return 0
 }
 
 # 步骤5: 验证规则脚本
 verify_and_attest_rules() {
-	info "步骤5: 验证规则脚本"
+	info "步骤1.3: 验证规则脚本"
 
 	if [ ! -f "$RULES_FILE" ]; then
 		error "规则脚本文件不存在: $RULES_FILE"
@@ -318,20 +330,19 @@ verify_and_attest_rules() {
 	info "正在认证规则脚本..."
 	warn "正在执行: $CLEF_BIN attest $EXPECTED_HASH"
 	echo "请按照提示操作:"
-	echo "1. 输入 'ok' 确认"
-	echo "2. 输入clef加密密码"
+	echo "1. 输入clef加密密码"
 
-	if ! $CLEF_BIN attest "$EXPECTED_HASH"; then
+	if ! $CLEF_BIN --configdir $DATA_DIR/clef --suppress-bootwarn attest "$EXPECTED_HASH"; then
 		error "规则脚本认证失败"
 		exit 1
 	fi
+
+	return 0
 }
 
 # 清理临时文件
 cleanup() {
-	if [ -f "/tmp/keystore_address.txt" ]; then
-		rm -f "/tmp/keystore_address.txt"
-	fi
+	echo 🧹
 }
 
 # 主函数
@@ -344,18 +355,19 @@ main() {
 	check_prerequisites
 
 	# 执行初始化步骤
-	init_geth || exit 1
-	copy_keystore
-	init_clef
-	set_account_password
-	verify_and_attest_rules
+	if init_clef ; then
+		set_account_password
+		verify_and_attest_rules
+	fi
+	if init_geth ; then
+		copy_keystore
+	fi
 
 	# 清理
 	cleanup
 
 	echo "=========================================="
 	info "所有初始化步骤已完成！"
-	info "可以使用以下命令退出docker: exit"
 	echo "=========================================="
 }
 
