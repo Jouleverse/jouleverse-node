@@ -7,6 +7,7 @@ Binary and config files for running jouleverse nodes. env: ubuntu:20.04 (docker)
 2026.1.29
 - improve clef init process and config directory setup
 - improve miner init script to be flexibly init only clef and/or geth
+- improve clef rules security
 
 2026.1.28
 - downgrade docker image requirement from ubuntu 22.04 to 20.04

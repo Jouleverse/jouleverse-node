@@ -215,6 +215,7 @@ init_clef() {
 	echo "请按照提示操作:"
 	echo "1. 输入并确认clef加密密码（两次）"
 
+	mkdir -p $DATA_DIR/clef
 	if ! $CLEF_BIN --configdir $DATA_DIR/clef --suppress-bootwarn init; then
 		error "Clef初始化失败"
 		exit 1
