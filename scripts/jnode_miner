@@ -92,7 +92,7 @@ start_node() {
 	echo
 
 	# 创建临时文件（使用mktemp）
-	TEMP_PWD_FILE=$(mktemp ${DATA_DIR}/clef/clef_password_XXXXXX)
+	TEMP_PWD_FILE=$(mktemp ${DATA_DIR}/clef_password_XXXXXX)
 	chmod 600 "$TEMP_PWD_FILE"
 
 	# 写入密码

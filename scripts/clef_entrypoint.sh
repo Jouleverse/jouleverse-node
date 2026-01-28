@@ -4,7 +4,7 @@
 set -euo pipefail
 
 # 密码文件路径（可以在启动时通过环境变量覆盖）
-PASSWORD_FILE="/data/clef/${CLEF_PASSWORD_FILE}"
+PASSWORD_FILE="/data/${CLEF_PASSWORD_FILE}"
 
 # 检查密码文件是否存在
 if [ ! -f "$PASSWORD_FILE" ]; then
