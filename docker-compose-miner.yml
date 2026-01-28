@@ -2,12 +2,12 @@ version: '3.8'
 
 services:
   clef:
-    image: ubuntu:22.04
+    image: ubuntu:20.04
     container_name: jouleverse-clef
     volumes:
-      - ~/jouleverse-node-20260126:/j:ro
-      - ~/data:/data
-      - ~/data/clef:/root/.clef
+      - $HOME/jouleverse-node-20260128:/j:ro
+      - $HOME/data:/data
+      - $HOME/data/clef:/root/.clef
     environment:
       - CLEF_PASSWORD_FILE
     command: >
@@ -22,9 +22,9 @@ services:
       clef:
         condition: service_healthy
     volumes:
-      - ~/jouleverse-node-20260126:/j:ro
-      - ~/data:/data
-      - ~/data/clef:/root/.clef
+      - $HOME/jouleverse-node-20260128:/j:ro
+      - $HOME/data:/data
+      - $HOME/data/clef:/root/.clef
     ports:
       - "30311:30311"
       - "30311:30311/udp"

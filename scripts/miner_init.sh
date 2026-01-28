@@ -17,7 +17,7 @@ GETH_BIN="/j/bin/geth"
 CLEF_BIN="/j/bin/clef"
 GENESIS_FILE="/j/init/genesis-mainnet.json"
 RULES_FILE="/j/config/clef-rules.js"
-EXPECTED_HASH="4d93f7a4a82e5450c06c7b208eba35262b5dc07121d67bb087b40bf8bd6f8df6"
+EXPECTED_HASH="66f7354d369835a51b0a41343433c1b5670819dcc6ede20f92904e81244829af"
 
 # 函数：打印带颜色的消息
 info() { echo -e "${GREEN}[INFO]${NC} $1"; }

@@ -55,7 +55,7 @@ init_node() {
 
 	# 检查数据目录是否存在
 	if [ -e "$DATA_DIR/mainnet" ]; then
-		echo "警告: 数据目录 ~/data/mainnet 已存在！"
+		echo "警告: 数据目录 $DATA_DIR/mainnet 已存在！"
 		echo "重新初始化将会破坏现有数据。"
 
 		read -p "是否继续强制重新初始化数据目录？(y/N): " confirm
@@ -64,6 +64,8 @@ init_node() {
 			log_info "用户取消初始化操作。"
 			return 1
 		fi
+
+		backup_node && rm ${DATA_DIR}/clef/masterseed.json
 	fi
 
 	mkdir -p ${DATA_DIR}/clef

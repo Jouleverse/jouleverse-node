@@ -53,7 +53,7 @@ MaxPrice = 500000000000
 IgnorePrice = 2
 
 [Node]
-VersionTag = "m20260126"
+VersionTag = "m20260128"
 DataDir = "/data/mainnet"
 InsecureUnlockAllowed = true
 IPCPath = "geth.ipc"

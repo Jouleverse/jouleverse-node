@@ -4,9 +4,17 @@ Binary and config files for running jouleverse nodes. env: ubuntu:20.04 (docker)
 
 ## revision history
 
+2026.1.28
+- downgrade docker image requirement from ubuntu 22.04 to 20.04
+- fix ~ to $HOME in docker-compose config for root run
+- improve security for clef-rules.js
+
 2026.1.26
 - fix docker-compose permission issue
 - fix version tag x20260126
+- update bootnode lists
+- integrate clef signer for geth miner
+- wrap jnode mgmt scripts for easier node operation
 
 2026.1.25
 - clean up bootnodes

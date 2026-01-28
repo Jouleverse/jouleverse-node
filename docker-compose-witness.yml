@@ -2,12 +2,12 @@ version: '3.8'
 
 services:
   geth:
-    image: ubuntu:22.04
+    image: ubuntu:20.04
     container_name: jouleverse-geth
     volumes:
-      - ~/jouleverse-node-20260126:/j:ro
-      - ~/data:/data
-      - ~/data/clef:/root/.clef
+      - $HOME/jouleverse-node-20260128:/j:ro
+      - $HOME/data:/data
+      - $HOME/data/clef:/root/.clef
     ports:
       - "8501:8501"
       - "30311:30311"
